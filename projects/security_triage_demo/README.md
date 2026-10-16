@@ -1,6 +1,6 @@
 # Claude for Cybersecurity — Live Demo Package
 
-> **Part of [Claude for Cybersecurity](../docs/Claude_Security_60hr_Detailed_Course_Outline.md)**, a 60-hour hands-on curriculum on applying Claude to security work. This is the first runnable project in the series.
+> **Part of [Claude for Cybersecurity](https://github.com/Subhash-Pal/claude-for-cybersecurity/blob/main/docs/Claude_Security_60hr_Detailed_Course_Outline.md)**, a 60-hour hands-on curriculum on applying Claude to security work. This is the first runnable project in the series.
 
 ## Purpose & context
 
