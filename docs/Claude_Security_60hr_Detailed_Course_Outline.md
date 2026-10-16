@@ -2,7 +2,9 @@
 ## Detailed Course Outline
 
 **Format:** 14 sessions across 7 tracks (2 sessions per specialist track, 2 shared Foundation sessions)
+
 **Base:** Redesigned from Vinsys 32-Hour Training Plan per gap analysis
+
 **Delivery:** Instructor-led, ~40% lecture / 60% hands-on lab per session
 
 ---
