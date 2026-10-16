@@ -1,0 +1,395 @@
+<style>
+  :root {
+    --bg: #0b1220;
+    --panel: #111a2e;
+    --panel-raised: #16233d;
+    --border: #223050;
+    --text: #dbe4f5;
+    --text-dim: #7c8bab;
+    --cyan: #4fd6d1;
+    --amber: #f2a65a;
+    --red: #ef5b6b;
+    --yellow: #eec868;
+    --green: #7fd68a;
+    --mono: 'SF Mono', 'Consolas', 'Menlo', monospace;
+    --sans: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  .app {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100%;
+    padding: 28px;
+    border-radius: 12px;
+  }
+  .header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header h1 {
+    font-family: var(--mono);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 0;
+    color: var(--text);
+  }
+  .header .sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 9px 16px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); border-color: #33456e; }
+  .tab.active.soc { background: rgba(79,214,209,0.12); border-color: var(--cyan); color: var(--cyan); }
+  .tab.active.appsec { background: rgba(242,166,90,0.12); border-color: var(--amber); color: var(--amber); }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .panel-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .panel-top .desc { font-size: 12.5px; color: var(--text-dim); max-width: 560px; line-height: 1.5; }
+  .run-btn {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    color: #06141f;
+    white-space: nowrap;
+    transition: transform 0.1s ease, opacity 0.15s ease;
+  }
+  .run-btn.soc { background: var(--cyan); }
+  .run-btn.appsec { background: var(--amber); }
+  .run-btn:hover { transform: translateY(-1px); }
+  .run-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+  .raw-queue {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-dim);
+    background: var(--panel-raised);
+    border-radius: 8px;
+    padding: 12px;
+    max-height: 130px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .raw-queue .item { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .status-line {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    min-height: 18px;
+  }
+  .status-line.thinking { color: var(--yellow); }
+  .status-line .dot { animation: pulse 1.2s infinite ease-in-out; }
+  @keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+  .summary-bar {
+    display: flex;
+    gap: 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .summary-bar b { font-weight: 700; }
+
+  .results { display: flex; flex-direction: column; gap: 8px; }
+  .card {
+    background: var(--panel-raised);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 14px;
+    animation: slideIn 0.3s ease both;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card.sev-critical, .card.verdict-confirmed.sev-critical { border-left-color: var(--red); }
+  .card.sev-high, .card.verdict-confirmed.sev-high { border-left-color: var(--red); opacity: 0.92; }
+  .card.sev-medium { border-left-color: var(--yellow); }
+  .card.sev-low, .card.sev-na, .card.sev-informational { border-left-color: var(--green); opacity: 0.85; }
+  .card.verdict-falsepositive { border-left-color: var(--green); opacity: 0.7; }
+  .card.verdict-needsreview { border-left-color: var(--yellow); }
+
+  .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 10px; }
+  .badge {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.03em;
+  }
+  .badge.critical, .badge.confirmed { background: rgba(239,91,107,0.18); color: var(--red); }
+  .badge.high { background: rgba(239,91,107,0.14); color: var(--red); }
+  .badge.medium, .badge.needsreview { background: rgba(238,200,104,0.16); color: var(--yellow); }
+  .badge.low, .badge.informational, .badge.na, .badge.falsepositive { background: rgba(127,214,138,0.14); color: var(--green); }
+
+  .card-id { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+  .card-meta { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+  .card-reason { font-size: 12.5px; color: var(--text); line-height: 1.5; margin-bottom: 4px; }
+  .card-action { font-size: 12px; color: var(--cyan); line-height: 1.4; }
+  .panel[data-track="appsec"] .card-action { color: var(--amber); }
+  .card-action b { font-weight: 600; }
+
+  .chain-flag {
+    display: inline-block;
+    margin-left: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--red);
+    border: 1px solid var(--red);
+    border-radius: 4px;
+    padding: 1px 6px;
+  }
+
+  .footer-note {
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    line-height: 1.5;
+  }
+  .hidden { display: none; }
+</style>
+
+<div class="app">
+  <div class="header">
+    <h1>&gt; security_triage_demo</h1>
+    <div class="sub">Claude for Cybersecurity — 60hr Curriculum</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active soc" data-tab="soc" onclick="switchTab('soc')">SOC · Alert Triage</div>
+    <div class="tab appsec" data-tab="appsec" onclick="switchTab('appsec')">AppSec · SAST Triage</div>
+  </div>
+
+  <!-- SOC PANEL -->
+  <div class="panel" id="panel-soc" data-track="soc">
+    <div class="panel-top">
+      <div class="desc">15 raw alerts from EDR, firewall, IDS, DLP, AD, cloud, and SaaS monitoring — unsorted, as a SOC queue actually looks. Claude triages the batch, assigns severity, and surfaces attack chains the raw feed doesn't show.</div>
+      <button class="run-btn soc" id="btn-soc" onclick="runTriage('soc')">Run Claude Triage →</button>
+    </div>
+    <div class="raw-queue" id="raw-soc"></div>
+    <div class="status-line" id="status-soc"></div>
+    <div class="summary-bar" id="summary-soc"></div>
+    <div class="results" id="results-soc"></div>
+    <div class="footer-note">Calls the live Claude API. First run may take 15-30 seconds while it reasons across the full alert set.</div>
+  </div>
+
+  <!-- APPSEC PANEL -->
+  <div class="panel hidden" id="panel-appsec" data-track="appsec">
+    <div class="panel-top">
+      <div class="desc">12 raw Semgrep findings from a sample scan — real vulnerabilities mixed with false positives (test fixtures, doc placeholders). Claude triages each one with file/line context and flags what should actually block a release.</div>
+      <button class="run-btn appsec" id="btn-appsec" onclick="runTriage('appsec')">Run Claude Triage →</button>
+    </div>
+    <div class="raw-queue" id="raw-appsec"></div>
+    <div class="status-line" id="status-appsec"></div>
+    <div class="summary-bar" id="summary-appsec"></div>
+    <div class="results" id="results-appsec"></div>
+    <div class="footer-note">Calls the live Claude API. First run may take 15-30 seconds while it reasons across the full findings set.</div>
+  </div>
+</div>
+
+<script>
+const ALERTS = [
+  {id:"ALT-1001",timestamp:"02:14:11",source:"EDR",asset:"FIN-WKS-0042",alert_type:"Suspicious PowerShell Execution",raw_description:"powershell.exe with -EncodedCommand, parent winword.exe, base64 payload."},
+  {id:"ALT-1002",timestamp:"02:16:45",source:"Firewall",asset:"DMZ-WEB-01",alert_type:"Port Scan Detected",raw_description:"Sequential connections to ports 20-1024 from 185.220.101.47 over 90s."},
+  {id:"ALT-1003",timestamp:"02:20:03",source:"EDR",asset:"FIN-WKS-0042",alert_type:"New Scheduled Task Created",raw_description:"Task 'WinUpdateSvc' runs svc32.exe from Temp every 15 min."},
+  {id:"ALT-1004",timestamp:"02:21:19",source:"DLP",asset:"FIN-WKS-0042",alert_type:"Large Outbound Data Transfer",raw_description:"312MB uploaded via HTTPS to unrecognized domain in 4 minutes."},
+  {id:"ALT-1005",timestamp:"02:45:00",source:"IDS",asset:"PROD-DB-03",alert_type:"SQL Injection Attempt",raw_description:"Blocked UNION SELECT payload against /api/v1/reports. WAF 403."},
+  {id:"ALT-1006",timestamp:"03:02:37",source:"AD",asset:"DC-PRIMARY",alert_type:"Multiple Failed Logins",raw_description:"'svc-backup' failed 6x from FIN-WKS-0042, then succeeded."},
+  {id:"ALT-1007",timestamp:"03:05:12",source:"EDR",asset:"HR-WKS-0117",alert_type:"AV Match - Cleaned",raw_description:"Generic adware detected in browser extensions, auto-quarantined."},
+  {id:"ALT-1008",timestamp:"03:11:58",source:"Cloud",asset:"AWS-S3-backups",alert_type:"Public Bucket ACL Change",raw_description:"'corp-backups-2024' ACL changed private→public-read by terraform-ci."},
+  {id:"ALT-1009",timestamp:"03:15:40",source:"Email Gateway",asset:"r.iyer@corp.local",alert_type:"Phishing Link Clicked",raw_description:"User clicked link flagged post-delivery, O365 login clone page."},
+  {id:"ALT-1010",timestamp:"03:20:05",source:"EDR",asset:"FIN-WKS-0042",alert_type:"LSASS Memory Access",raw_description:"svc32.exe requested LSASS read access, denied by EDR."},
+  {id:"ALT-1011",timestamp:"03:30:22",source:"Firewall",asset:"Perimeter",alert_type:"Outbound Connection to Known C2",raw_description:"FIN-WKS-0042 → 185.220.101.47:443, matches threat intel feed."},
+  {id:"ALT-1012",timestamp:"04:02:10",source:"SaaS Monitor",asset:"Salesforce",alert_type:"Unusual Report Export",raw_description:"Full contact list exported at 4:02 AM local, off-hours."},
+  {id:"ALT-1013",timestamp:"04:10:00",source:"IDS",asset:"PROD-WEB-02",alert_type:"Repeated 404 Scanning",raw_description:"Scanner requesting /wp-admin, /phpmyadmin from one IP, all 404."},
+  {id:"ALT-1014",timestamp:"04:22:31",source:"EDR",asset:"DEV-WKS-0089",alert_type:"Unsigned Driver Loaded",raw_description:"'gputools64.sys' unsigned, same-day GPU utility install."},
+  {id:"ALT-1015",timestamp:"04:31:47",source:"AD",asset:"DC-PRIMARY",alert_type:"New Domain Admin Added",raw_description:"'svc-backup' added to Domain Admins by 'jsharma', 90 min after failed logins."}
+];
+
+const FINDINGS = [
+  {id:"SAST-001",tool:"Semgrep",rule:"sqli.formatted-sql-query",file:"app/reports/query_builder.py",line:42,cwe:"CWE-89",snippet:"query = f\"SELECT * FROM invoices WHERE customer_id = {customer_id}\"\\ncursor.execute(query)"},
+  {id:"SAST-002",tool:"Semgrep",rule:"sqli.formatted-sql-query",file:"app/admin/user_lookup.py",line:18,cwe:"CWE-89",snippet:"cursor.execute(\"SELECT * FROM users WHERE id = %s\" % user_id)"},
+  {id:"SAST-003",tool:"Semgrep",rule:"detected-generic-api-key",file:"app/integrations/payment_gateway.py",line:7,cwe:"CWE-798",snippet:"STRIPE_TEST_KEY = \"stripe_test_EXAMPLE_FAKE_KEY_0000\"  # test mode only"},
+  {id:"SAST-004",tool:"Semgrep",rule:"debug-enabled",file:"app/main.py",line:5,cwe:"CWE-489",snippet:"app.run(host=\"0.0.0.0\", debug=True)"},
+  {id:"SAST-005",tool:"Semgrep",rule:"eval-detected",file:"app/utils/formula_engine.py",line:63,cwe:"CWE-95",snippet:"result = eval(user_supplied_formula, {\"__builtins__\": {}}, safe_vars)"},
+  {id:"SAST-006",tool:"Semgrep",rule:"eval-detected",file:"app/utils/config_loader.py",line:29,cwe:"CWE-95",snippet:"settings = eval(open(\"defaults.cfg\").read())"},
+  {id:"SAST-007",tool:"Semgrep",rule:"insecure-hash-md5",file:"app/auth/password_utils.py",line:11,cwe:"CWE-327",snippet:"hashed = hashlib.md5(password.encode()).hexdigest()"},
+  {id:"SAST-008",tool:"Semgrep",rule:"insecure-hash-md5",file:"app/cache/etag_generator.py",line:15,cwe:"CWE-327",snippet:"etag = hashlib.md5(response_body).hexdigest()"},
+  {id:"SAST-009",tool:"Semgrep",rule:"subprocess-shell-true",file:"app/ops/backup_runner.py",line:22,cwe:"CWE-78",snippet:"subprocess.run(f\"tar -czf {backup_name}.tar.gz /data\", shell=True)"},
+  {id:"SAST-010",tool:"Semgrep",rule:"subprocess-shell-true",file:"tests/fixtures/setup_test_env.py",line:8,cwe:"CWE-78",snippet:"subprocess.run(\"docker-compose up -d\", shell=True)"},
+  {id:"SAST-011",tool:"Semgrep",rule:"xss.template-autoescape-off",file:"app/templates/render.py",line:34,cwe:"CWE-79",snippet:"return mark_safe(user_bio_html)"},
+  {id:"SAST-012",tool:"Semgrep",rule:"detected-generic-api-key",file:"docs/examples/quickstart.py",line:3,cwe:"CWE-798",snippet:"API_KEY = \"YOUR_API_KEY_HERE\"  # placeholder in documentation example"}
+];
+
+const SOC_SYSTEM_PROMPT = `You are a senior SOC analyst assistant. You will be given a raw queue of security alerts.
+For EACH alert, assign: severity (Critical/High/Medium/Low/Informational), confidence (0-100), related_to (array of other alert IDs that appear to be part of the same incident, or empty array), reasoning (one concise sentence), recommended_action (one concise concrete step).
+Actively look for attack chains: correlate alerts on the same asset within a short time window even if each looks minor alone.
+Respond with ONLY a JSON array, no markdown fences, no preamble. Each element: {"id":"...","severity":"...","confidence":0,"related_to":[],"reasoning":"...","recommended_action":"..."}`;
+
+const APPSEC_SYSTEM_PROMPT = `You are a senior AppSec engineer triaging raw SAST scan output.
+For EACH finding, assign: verdict (Confirmed/Needs Review/False Positive), severity (Critical/High/Medium/Low/N/A — N/A only for False Positive), reasoning (one concise sentence referencing the actual code/file), remediation (one concise concrete fix, or "None needed").
+Use file path and snippet as real signal — test fixtures and doc placeholders are usually false positives; production code with real sinks is usually confirmed.
+Respond with ONLY a JSON array, no markdown fences, no preamble. Each element: {"id":"...","verdict":"...","severity":"...","reasoning":"...","remediation":"..."}`;
+
+function renderRawQueue() {
+  document.getElementById('raw-soc').innerHTML = ALERTS.map(a =>
+    `<div class="item">[${a.timestamp}] ${a.source.padEnd(13)} ${a.asset.padEnd(16)} ${a.alert_type}</div>`
+  ).join('');
+  document.getElementById('raw-appsec').innerHTML = FINDINGS.map(f =>
+    `<div class="item">${f.file}:${f.line}  →  ${f.rule}  (${f.cwe})</div>`
+  ).join('');
+}
+renderRawQueue();
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('panel-soc').classList.toggle('hidden', tab !== 'soc');
+  document.getElementById('panel-appsec').classList.toggle('hidden', tab !== 'appsec');
+}
+
+function slug(s) { return s.toLowerCase().replace(/[^a-z]/g, ''); }
+
+async function runTriage(track) {
+  const btn = document.getElementById(`btn-${track}`);
+  const status = document.getElementById(`status-${track}`);
+  const resultsEl = document.getElementById(`results-${track}`);
+  const summaryEl = document.getElementById(`summary-${track}`);
+
+  btn.disabled = true;
+  resultsEl.innerHTML = '';
+  summaryEl.innerHTML = '';
+  status.className = 'status-line thinking';
+  status.innerHTML = track === 'soc'
+    ? 'Claude is triaging 15 alerts and correlating attack chains<span class="dot">...</span>'
+    : 'Claude is triaging 12 SAST findings against file context<span class="dot">...</span>';
+
+  const isSOC = track === 'soc';
+  const systemPrompt = isSOC ? SOC_SYSTEM_PROMPT : APPSEC_SYSTEM_PROMPT;
+  const dataPayload = isSOC ? ALERTS : FINDINGS;
+  const userMsg = (isSOC ? 'Triage this alert queue:\n\n' : 'Triage this SAST scan output:\n\n') + JSON.stringify(dataPayload, null, 2);
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userMsg }]
+      })
+    });
+    const data = await response.json();
+    let text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+    text = text.trim();
+    if (text.startsWith("```")) {
+      text = text.split("```")[1];
+      if (text.startsWith("json")) text = text.slice(4);
+    }
+    const triage = JSON.parse(text);
+    status.className = 'status-line';
+    status.textContent = `Done — ${triage.length} items triaged.`;
+    renderResults(track, triage);
+  } catch (err) {
+    status.className = 'status-line';
+    status.style.color = 'var(--red)';
+    status.textContent = 'Error calling Claude API: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderResults(track, triage) {
+  const isSOC = track === 'soc';
+  const resultsEl = document.getElementById(`results-${track}`);
+  const summaryEl = document.getElementById(`summary-${track}`);
+  const dataById = Object.fromEntries((isSOC ? ALERTS : FINDINGS).map(d => [d.id, d]));
+
+  const order = isSOC
+    ? {Critical:0, High:1, Medium:2, Low:3, Informational:4}
+    : {Confirmed:0, "Needs Review":1, "False Positive":2};
+  const key = isSOC ? 'severity' : 'verdict';
+  const sorted = [...triage].sort((a,b) => (order[a[key]] ?? 9) - (order[b[key]] ?? 9));
+
+  const counts = {};
+  triage.forEach(t => { counts[t[key]] = (counts[t[key]] || 0) + 1; });
+  const labels = isSOC ? ["Critical","High","Medium","Low","Informational"] : ["Confirmed","Needs Review","False Positive"];
+  const colorVar = isSOC
+    ? {Critical:'var(--red)', High:'var(--red)', Medium:'var(--yellow)', Low:'var(--cyan)', Informational:'var(--text-dim)'}
+    : {Confirmed:'var(--red)', "Needs Review":'var(--yellow)', "False Positive":'var(--green)'};
+  summaryEl.innerHTML = labels.filter(l => counts[l]).map(l =>
+    `<span style="color:${colorVar[l]}"><b>${l}</b>: ${counts[l]}</span>`
+  ).join('');
+
+  resultsEl.innerHTML = sorted.map((t, i) => {
+    const d = dataById[t.id] || {};
+    const sevClass = isSOC ? `sev-${slug(t.severity)}` : `verdict-${slug(t.verdict)} sev-${slug(t.severity)}`;
+    const badgeClass = isSOC ? slug(t.severity) : slug(t.verdict);
+    const badgeLabel = isSOC ? t.severity : t.verdict;
+    const chain = isSOC && t.related_to && t.related_to.length
+      ? `<span class="chain-flag">CHAIN ×${t.related_to.length + 1}</span>` : '';
+
+    const metaLine = isSOC
+      ? `${d.asset || ''} · ${d.alert_type || ''}`
+      : `${d.file || ''}:${d.line || ''} · ${d.rule || ''} (${d.cwe || ''})`;
+
+    const actionLabel = isSOC ? 'Action' : 'Fix';
+    const actionText = isSOC ? t.recommended_action : t.remediation;
+
+    return `
+      <div class="card ${sevClass}" style="animation-delay:${i * 40}ms">
+        <div class="card-top">
+          <span><span class="badge ${badgeClass}">${badgeLabel}</span> ${chain}</span>
+          <span class="card-id">${t.id}${isSOC ? '  ' + t.confidence + '%' : ''}</span>
+        </div>
+        <div class="card-meta">${metaLine}</div>
+        <div class="card-reason">${t.reasoning}</div>
+        <div class="card-action"><b>${actionLabel}:</b> ${actionText}</div>
+      </div>`;
+  }).join('');
+}
+</script>

@@ -1,0 +1,15 @@
+[
+  {"id": "SAST-001", "tool": "Semgrep", "rule": "python.lang.security.audit.sqli.formatted-sql-query", "file": "app/reports/query_builder.py", "line": 42, "cwe": "CWE-89", "snippet": "query = f\"SELECT * FROM invoices WHERE customer_id = {customer_id}\"\ncursor.execute(query)"},
+  {"id": "SAST-002", "tool": "Semgrep", "rule": "python.lang.security.audit.sqli.formatted-sql-query", "file": "app/admin/user_lookup.py", "line": 18, "cwe": "CWE-89", "snippet": "cursor.execute(\"SELECT * FROM users WHERE id = %s\" % user_id)"},
+  {"id": "SAST-003", "tool": "Semgrep", "rule": "generic.secrets.security.detected-generic-api-key", "file": "app/integrations/payment_gateway.py", "line": 7, "cwe": "CWE-798", "snippet": "STRIPE_TEST_KEY = \"stripe_test_EXAMPLE_FAKE_KEY_0000\"  # test mode only"},
+  {"id": "SAST-004", "tool": "Semgrep", "rule": "python.flask.security.audit.debug-enabled", "file": "app/main.py", "line": 5, "cwe": "CWE-489", "snippet": "app.run(host=\"0.0.0.0\", debug=True)"},
+  {"id": "SAST-005", "tool": "Semgrep", "rule": "python.lang.security.audit.eval-detected", "file": "app/utils/formula_engine.py", "line": 63, "cwe": "CWE-95", "snippet": "result = eval(user_supplied_formula, {\"__builtins__\": {}}, safe_vars)"},
+  {"id": "SAST-006", "tool": "Semgrep", "rule": "python.lang.security.audit.eval-detected", "file": "app/utils/config_loader.py", "line": 29, "cwe": "CWE-95", "snippet": "settings = eval(open(\"defaults.cfg\").read())"},
+  {"id": "SAST-007", "tool": "Semgrep", "rule": "python.cryptography.security.insecure-hash-algorithm-md5", "file": "app/auth/password_utils.py", "line": 11, "cwe": "CWE-327", "snippet": "hashed = hashlib.md5(password.encode()).hexdigest()"},
+  {"id": "SAST-008", "tool": "Semgrep", "rule": "python.cryptography.security.insecure-hash-algorithm-md5", "file": "app/cache/etag_generator.py", "line": 15, "cwe": "CWE-327", "snippet": "etag = hashlib.md5(response_body).hexdigest()"},
+  {"id": "SAST-009", "tool": "Semgrep", "rule": "python.lang.security.audit.subprocess-shell-true", "file": "app/ops/backup_runner.py", "line": 22, "cwe": "CWE-78", "snippet": "subprocess.run(f\"tar -czf {backup_name}.tar.gz /data\", shell=True)"},
+  {"id": "SAST-010", "tool": "Semgrep", "rule": "python.lang.security.audit.subprocess-shell-true", "file": "tests/fixtures/setup_test_env.py", "line": 8, "cwe": "CWE-78", "snippet": "subprocess.run(\"docker-compose up -d\", shell=True)"},
+  {"id": "SAST-011", "tool": "Semgrep", "rule": "python.django.security.audit.xss.template-autoescape-off", "file": "app/templates/render.py", "line": 34, "cwe": "CWE-79", "snippet": "return mark_safe(user_bio_html)"},
+  {"id": "SAST-012", "tool": "Semgrep", "rule": "generic.secrets.security.detected-generic-api-key", "file": "docs/examples/quickstart.py", "line": 3, "cwe": "CWE-798", "snippet": "API_KEY = \"YOUR_API_KEY_HERE\"  # placeholder in documentation example"}
+]
+
