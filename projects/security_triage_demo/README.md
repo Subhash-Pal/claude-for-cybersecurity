@@ -1,5 +1,51 @@
 # Claude for Cybersecurity — Live Demo Package
 
+> **Part of [Claude for Cybersecurity](../../README.md)**, a 60-hour hands-on curriculum on applying Claude to security work. This is the first runnable project in the series.
+
+## Purpose & context
+
+Security teams don't lack data, they lack time to read it. A SOC analyst faces hundreds of alerts per shift, and an AppSec engineer faces thousands of scanner findings per release. Most of it is noise, and the few items that matter are easy to miss because they look harmless on their own.
+
+This module demonstrates the first and most practical use of Claude in security: **triage**. That means taking a raw, unsorted pile of machine-generated output and turning it into a prioritized, explained, decision-ready list that a human can act on.
+
+It covers two tracks of the curriculum, using the same pattern:
+
+| Track | Problem | What Claude does |
+|---|---|---|
+| **SOC / SecOps** (Session 3.2) | A flat queue of alerts from many tools, with no sense of which ones are connected | Scores severity and confidence, then correlates alerts into a single attack chain |
+| **AppSec** (Session 5.2) | A scanner report where real vulnerabilities are buried among false positives | Judges each finding in its file and line context and separates true issues from noise |
+
+### How it works
+
+Both demos follow the same pipeline:
+
+1. **Load** synthetic input from `sample_data/` (alerts or SAST findings, as JSON).
+2. **Prompt** Claude with the raw data and a clear triage task (role, criteria, required output structure).
+3. **Reason**: Claude assigns severity and confidence, explains each judgment, and looks for relationships across items.
+4. **Report**: the result is rendered as a prioritized summary (terminal output or an interactive browser view).
+
+Each terminal script can run in two modes. The default replays a pre-recorded Claude response so the demo works offline and behaves identically every time. `--live` sends the data to the real API.
+
+### Design principles
+
+- **Human in the loop.** Claude recommends and explains. The analyst or engineer makes the final call.
+- **Synthetic data only.** Nothing here comes from a real environment, so it is safe to run, share and show.
+- **Reproducible.** The offline mode removes the dependency on network and API availability, which makes it reliable for live demos and teaching.
+- **Explainable output.** Every verdict comes with its reasoning, so the output can be checked rather than blindly trusted.
+
+### What you should take away
+
+- Why correlating alerts matters more than scoring them one at a time (the attack chain moment).
+- How added context (file path, line, code intent) separates real findings from false positives.
+- How to structure a triage prompt and what output format makes it usable.
+- Where an LLM helps in the triage loop and where a human must still decide.
+
+### How this fits the series
+
+This project is the foundation for later modules. The triage pattern of raw data, structured prompt, reasoned output and human decision extends to threat intel enrichment, incident response and detection engineering. Each of those will be added as its own folder under `projects/` in the root repository.
+
+---
+
 Two working demos from the 60-hour curriculum, each in two formats:
 
 | Track | Session/Module | Python (terminal) | Browser (interactive) |
@@ -60,6 +106,7 @@ after every scan.
 ## Files
 
 ```
+README.md                      — this file
 soc_alert_triage_demo.py       — SOC terminal demo
 appsec_sast_triage_demo.py     — AppSec terminal demo
 security_triage_demo.html      — combined interactive browser demo
